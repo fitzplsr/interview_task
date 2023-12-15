@@ -2,6 +2,7 @@ package main
 
 import (
 	"finder/internal/parserMaker"
+	"finder/internal/reader"
 	"finder/internal/workerRunner"
 	"fmt"
 	"os"
@@ -14,7 +15,8 @@ const goroutinesCount = 5
 const timeout = time.Second * 5
 
 func main() {
-	parsers, errCh := parserMaker.Make(os.Stdin, target, timeout)
+	lines := reader.Read(os.Stdin)
+	parsers, errCh := parserMaker.Make(lines, target, timeout)
 
 	wg := sync.WaitGroup{}
 	wg.Add(1)

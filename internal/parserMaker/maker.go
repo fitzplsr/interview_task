@@ -1,18 +1,17 @@
 package parserMaker
 
 import (
-	"bufio"
 	"finder/internal/parser"
 	"finder/internal/parser/fileParser"
 	"finder/internal/parser/urlParser"
 	"fmt"
-	"io"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 )
 
-func Make(reader io.Reader, target string, timeout time.Duration) (chan parser.Parser, chan error) {
+func Make(in chan string, target string, timeout time.Duration) (chan parser.Parser, chan error) {
 	parsers := make(chan parser.Parser)
 	errorCh := make(chan error)
 
@@ -21,12 +20,10 @@ func Make(reader io.Reader, target string, timeout time.Duration) (chan parser.P
 			close(parsers)
 			close(errorCh)
 		}()
-		in := bufio.NewScanner(reader)
 
-		for in.Scan() {
+		for s := range in {
 			var p parser.Parser
-			source := in.Text()
-
+			source := strings.Trim(s, " ")
 			_, err := os.Stat(source)
 			if err == nil {
 				p = fileParser.NewFileParser(source, target)
